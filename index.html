@@ -24,6 +24,11 @@
 </head>
 <body>
   <div id="flipbook"></div>
+  <div style="text-align:center; margin-top:20px;">
+    <button id="prevPage">上一頁</button>
+    <span id="pageNum">第 1 / 1 頁</span>
+    <button id="nextPage">下一頁</button>
+  </div>
   <script src="libs/pageflip.browser.min.js"></script>
   <script>
     const pages = [
@@ -63,6 +68,20 @@
     );
 
     pageFlip.loadFromImages(pages);
+    // 更新頁碼
+    function updatePageNum() {
+      const current = pageFlip.getCurrentPageIndex() + 1;
+      const total = pageFlip.getPageCount();
+      document.getElementById('pageNum').textContent = `第 ${current} / ${total} 頁`;
+    }
+
+    pageFlip.on('flip', updatePageNum);
+    pageFlip.on('init', updatePageNum);
+
+    // 上下頁按鈕
+    document.getElementById('prevPage').onclick = () => pageFlip.flipPrev();
+    document.getElementById('nextPage').onclick = () => pageFlip.flipNext();
+
 
     // 鍵盤左右鍵翻頁
     document.addEventListener('keydown', function(e) {
