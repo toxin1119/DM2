@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>三層圖層電子書</title>
   <link rel="stylesheet" href="libs/pageflip.min.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
     #flipbook {
       position: relative;
@@ -143,7 +144,7 @@
         </div>
         <div class="backcover-right"></div>
       </div>
-      <button id="backToCover" style="margin-top:20px;background:#2196F3;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;position:absolute;bottom:40px;left:25%;transform:translateX(-50%);z-index:2;">回到封面</button>
+      <button id="backToCover" style="margin-top:20px;background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;position:absolute;bottom:40px;left:25%;transform:translateX(-50%);z-index:2;">回到封面</button>
     </div>
   </div>
   <div id="navBarWrap">
@@ -152,7 +153,7 @@
       <button id="startRead" style="font-size:1.2em;background:#4CAF50;color:#fff;border:none;padding:16px 40px;border-radius:8px;cursor:pointer;">開始閱讀</button>
     </div>
     <div id="backcoverMask">
-      <button id="backToCoverMaskBtn" style="font-size:1.2em;background:#2196F3;color:#fff;border:none;padding:16px 40px;border-radius:8px;cursor:pointer;">回到封面</button>
+      <button id="backToCoverMaskBtn" style="font-size:1.2em;background:#4CAF50;color:#fff;border:none;padding:16px 40px;border-radius:8px;cursor:pointer;">回到封面</button>
     </div>
     <div id="navBar">
       <button id="prevPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;">上一頁</button>
@@ -162,13 +163,21 @@
   </div>
   <script src="libs/pageflip.browser.min.js"></script>
   <script>
+    // 手機判斷：寬度+UserAgent
+    function isMobileDevice() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    function isMobile() {
+      return window.innerWidth <= 600 || isMobileDevice();
+    }
+
     window.onload = function() {
-  alert('目前 window.innerWidth: ' + window.innerWidth);
-  
-  if (window.innerWidth <= 600 && !location.pathname.endsWith('mobile.html')) {
-    location.href = 'mobile.html';
-  }
-};
+      // alert('目前 window.innerWidth: ' + window.innerWidth + '\\nUserAgent: ' + navigator.userAgent);
+      if (isMobile() && !location.pathname.endsWith('mobile.html')) {
+        location.href = 'mobile.html';
+      }
+    };
+
     const pages = [
       "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
       "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg", "pages/11.jpg",
@@ -182,10 +191,6 @@
 
     let size = getSize();
     let pageFlip = null;
-
-    function isMobile() {
-      return window.innerWidth <= 600;
-    }
 
     function isAtLastSpread() {
       if (!pageFlip) return false;
