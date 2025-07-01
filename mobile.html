@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>三層圖層電子書（手機版）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="libs/pageflip.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #eee;
+    }
+    #flipbook {
+      width: 100vw;
+      height: 80vh;
+      margin: 0 auto;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+    #navBar {
+      width: 100vw;
+      text-align: center;
+      background: #fff;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 10;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+      padding: 8px 0;
+    }
+    #navBar button {
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 8px;
+      font-size: 1em;
+    }
+    #pageNum {
+      margin: 0 12px;
+      font-size: 1em;
+    }
+    #coverMask {
+      position: fixed;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #coverMask img {
+      width: 80vw;
+      max-width: 320px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+      margin-bottom: 32px;
+    }
+    #startRead {
+      font-size: 1.2em;
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    #backCoverMask {
+      display: none;
+      position: fixed;
+      left: 0; top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 200;
+      background: rgba(0,0,0,0.7);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #backCoverMask img {
+      width: 80vw;
+      max-width: 320px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+      margin-bottom: 32px;
+    }
+    #backToCover {
+      font-size: 1.2em;
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="coverMask">
+    <img src="pages/01.jpg" alt="封面">
+    <button id="startRead">開始閱讀</button>
+  </div>
+  <div id="flipbook" style="display:none"></div>
+  <div id="navBar" style="display:none">
+    <button id="prevPage">上一頁</button>
+    <span id="pageNum">第 1 / 1 頁</span>
+    <button id="nextPage">下一頁</button>
+  </div>
+  <!-- 封底遮罩 -->
+  <div id="backCoverMask">
+    <img src="pages/22.jpg" alt="封底">
+    <button id="backToCover">回到封面</button>
+  </div>
+  <script src="libs/pageflip.browser.min.js"></script>
+  <script>
+    const pages = [
+      "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
+      "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg", "pages/11.jpg",
+      "pages/12.jpg", "pages/13.jpg", "pages/14.jpg", "pages/15.jpg", "pages/16.jpg",
+      "pages/17.jpg", "pages/18.jpg", "pages/19.jpg", "pages/20.jpg", "pages/21.jpg"
+    ];
+
+    function getMobileSize() {
+      return {
+        width: Math.min(window.innerWidth - 20, 400),
+        height: window.innerHeight - 120
+      };
+    }
+
+    let size = getMobileSize();
+    let pageFlip = null;
+
+    document.getElementById('startRead').onclick = function() {
+      document.getElementById('coverMask').style.display = 'none';
+      document.getElementById('flipbook').style.display = '';
+      document.getElementById('navBar').style.display = '';
+      document.getElementById('backCoverMask').style.display = 'none';
+      document.body.style.overflow = '';
+      if (!pageFlip) {
+        size = getMobileSize();
+        pageFlip = new St.PageFlip(
+          document.getElementById('flipbook'),
+          {
+            width: size.width,
+            height: size.height,
+            size: 'fixed',
+            minWidth: 200,
+            maxWidth: 400,
+            minHeight: 300,
+            maxHeight: 1200,
+            maxShadowOpacity: 0.5,
+            showCover: false,
+            mobileScrollSupport: true,
+            usePortrait: true
+          }
+        );
+        pageFlip.loadFromImages(pages);
+
+        if (typeof pageFlip.setOrientation === 'function') {
+          pageFlip.setOrientation('portrait');
+        }
+
+        function updatePageNum() {
+          const current = pageFlip.getCurrentPageIndex() + 1;
+          const total = pages.length;
+          document.getElementById('pageNum').textContent = `第 ${current} / ${total} 頁`;
+        }
+        pageFlip.on('flip', function() {
+          updatePageNum();
+          // 若已到最後一頁，顯示封底
+          if (pageFlip.getCurrentPageIndex() === pages.length - 1) {
+            setTimeout(function() {
+              document.getElementById('flipbook').style.display = 'none';
+              document.getElementById('navBar').style.display = 'none';
+              document.getElementById('backCoverMask').style.display = 'flex';
+              document.body.style.overflow = 'hidden';
+            }, 300); // 延遲避免動畫卡頓
+          }
+        });
+        pageFlip.on('init', updatePageNum);
+
+        document.getElementById('prevPage').onclick = () => pageFlip.flipPrev();
+        document.getElementById('nextPage').onclick = () => pageFlip.flipNext();
+
+        window.addEventListener('resize', () => {
+          const size = getMobileSize();
+          pageFlip.update({
+            width: size.width,
+            height: size.height
+          });
+          if (typeof pageFlip.setOrientation === 'function') {
+            pageFlip.setOrientation('portrait');
+          }
+        });
+      }
+    };
+
+    // 封底遮罩「回到封面」按鈕
+    document.getElementById('backToCover').onclick = function() {
+      document.getElementById('backCoverMask').style.display = 'none';
+      document.getElementById('coverMask').style.display = 'flex';
+      document.getElementById('flipbook').style.display = 'none';
+      document.getElementById('navBar').style.display = 'none';
+      document.body.style.overflow = '';
+      if (pageFlip) pageFlip.turnToPage(0);
+    };
+  </script>
+</body>
+</html>
