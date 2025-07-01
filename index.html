@@ -1,19 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>圖片翻頁電子書</title>
+  <title>三層圖層電子書</title>
   <link rel="stylesheet" href="libs/pageflip.min.css">
   <style>
     #flipbook {
-      width: 90vw;           /* 依螢幕寬度自動縮放 */
-      max-width: 800px;      /* 最大寬度不超過 800px */
-      height: calc(90vw * 1.415); /* 依比例自動縮放 (1132/800 ≈ 1.415) */
-      max-height: 1132px;    /* 最大高度不超過 1132px */
+      position: relative;
+      width: 1600px;
+      max-width: 1600px;
+      height: 1132px;
+      max-height: 1132px;
       margin: 40px auto;
+      background: #fff;
+      overflow: hidden;
     }
-    #flipbook img {
+    .cover-section {
+      position: absolute;
+      left: 0; top: 0; width: 100%; height: 100%;
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-end;
+      flex-direction: row;
+      background: transparent;
+      transition: z-index 0.3s;
+      box-shadow: none;
+    }
+    .inner-section, .backcover-section {
+      position: absolute;
+      left: 0; top: 0; width: 100%; height: 100%;
+      background: #fff;
+      transition: z-index 0.3s;
+    }
+    .cover-left {
+      width: 50%;
+      height: 100%;
+      background: #eee;
+      display: block;
+      box-shadow: none;
+    }
+    .cover-right {
+      width: 50%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      position: relative;
+      box-shadow: none;
+    }
+    .cover-right img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
+      display: block;
+      cursor: pointer;
+      box-shadow: none;
+      border: none;
+    }
+    /* 封底左圖右底色 */
+    .backcover-flex {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+    .backcover-left {
+      width: 50%;
+      height: 100%;
+      background: none;
+      display: block;
+    }
+    .backcover-left img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border: none;
+      box-shadow: none;
+    }
+    .backcover-right {
+      width: 50%;
+      height: 100%;
+      background: #eee;
+      display: block;
+      box-shadow: none;
+    }
+    .hidden { display: none !important; }
+    /* 只覆蓋導覽列的遮罩 */
+    #navBarWrap {
+      position: relative;
+      width: 100%;
+      height: 70px;
+      margin-top: 20px;
+    }
+    #coverMask, #backcoverMask {
+      position: absolute;
+      left: 0; top: 0; width: 100%; height: 100%;
+      
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+    }
+    #coverMask.active, #backcoverMask.active {
+      display: flex;
+    }
+    #backcoverMask {
+      z-index: 50;
+    }
+    #navBar {
+      text-align: center;
+      position: relative;
+      z-index: 10;
     }
     body {
       margin: 0;
@@ -23,83 +122,213 @@
   </style>
 </head>
 <body>
-  <div id="flipbook"></div>
-  <div style="text-align:center; margin-top:20px;">
-    <button id="prevPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;">上一頁</button>
-    <span id="pageNum">第 1 / 1 頁</span>
-    <button id="nextPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;">下一頁</button>
+  <div id="flipbook">
+    <!-- 封面 -->
+    <div id="cover" class="cover-section" style="z-index: 30;">
+      <div class="cover-left"></div>
+      <div class="cover-right">
+        <img id="coverImg" src="pages/01.jpg" alt="封面">
+        
+      </div>
+    </div>
+    <!-- 內頁 -->
+    <div id="inner" class="inner-section hidden" style="z-index: 20;">
+      <!-- PageFlip 會掛載在這裡 -->
+    </div>
+    <!-- 封底（左圖右底色，無框線陰影） -->
+    <div id="backcover" class="backcover-section hidden" style="z-index: 10;">
+      <div class="backcover-flex">
+        <div class="backcover-left">
+          <img src="pages/22.jpg" alt="封底">
+        </div>
+        <div class="backcover-right"></div>
+      </div>
+      
+    </div>
+  </div>
+  <div id="navBarWrap">
+    <!-- 只覆蓋導覽列的遮罩 -->
+    <div id="coverMask" class="active">
+      <button id="startRead" style="font-size:1.2em;background:#4CAF50;color:#fff;border:none;padding:16px 40px;border-radius:8px;cursor:pointer;">開始閱讀</button>
+    </div>
+    <div id="backcoverMask">
+      <button id="backToCoverMaskBtn" style="font-size:1.2em;background:#4CAF50;color:#fff;border:none;padding:16px 40px;border-radius:8px;cursor:pointer;">回到封面</button>
+    </div>
+    <div id="navBar">
+      <button id="prevPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;">上一頁</button>
+      <span id="pageNum">第 1 / 1 頁</span>
+      <button id="nextPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;">下一頁</button>
+    </div>
   </div>
   <script src="libs/pageflip.browser.min.js"></script>
   <script>
     const pages = [
-      "pages/01.jpg", "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
+      "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
       "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg", "pages/11.jpg",
       "pages/12.jpg", "pages/13.jpg", "pages/14.jpg", "pages/15.jpg", "pages/16.jpg",
-      "pages/17.jpg", "pages/18.jpg", "pages/19.jpg", "pages/20.jpg", "pages/21.jpg", "pages/22.jpg"
+      "pages/17.jpg", "pages/18.jpg", "pages/19.jpg", "pages/20.jpg", "pages/21.jpg"
     ];
 
-    // 依螢幕寬度動態設定 PageFlip 尺寸
     function getSize() {
-      const maxW = 800, maxH = 1132, ratio = maxH / maxW;
-      let w = Math.min(window.innerWidth * 0.9, maxW);
-      let h = w * ratio;
-      if (h > maxH) {
-        h = maxH;
-        w = h / ratio;
-      }
-      return { width: Math.round(w), height: Math.round(h) };
+      return { width: 800, height: 1132 };
     }
 
     let size = getSize();
-    const pageFlip = new St.PageFlip(
-      document.getElementById('flipbook'),
-      {
-        width: size.width,
-        height: size.height,
-        size: 'fixed',
-        minWidth: 315,
-        maxWidth: 1000,
-        minHeight: 420,
-        maxHeight: 1350,
-        maxShadowOpacity: 0.5,
-        showCover: true,
-        mobileScrollSupport: true
-      }
-    );
+    let pageFlip = null;
 
-    pageFlip.loadFromImages(pages);
-    // 更新頁碼
-    function updatePageNum() {
-      const current = pageFlip.getCurrentPageIndex() + 1;
-      const total = pages.length;
-      document.getElementById('pageNum').textContent = `第 ${current} / ${total} 頁`;
+    function isMobile() {
+      return window.innerWidth <= 600;
     }
 
-    pageFlip.on('flip', updatePageNum);
-    pageFlip.on('init', updatePageNum);
-
-    // 上下頁按鈕
-    document.getElementById('prevPage').onclick = () => pageFlip.flipPrev();
-    document.getElementById('nextPage').onclick = () => pageFlip.flipNext();
-
-
-    // 鍵盤左右鍵翻頁
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'ArrowLeft') {
-        pageFlip.flipPrev();
-      } else if (e.key === 'ArrowRight') {
-        pageFlip.flipNext();
+    function isAtLastSpread() {
+      if (!pageFlip) return false;
+      if (pageFlip.getOrientation && pageFlip.getOrientation() === 'portrait') {
+        return pageFlip.getCurrentPageIndex() === pages.length - 1;
+      } else {
+        return pageFlip.getCurrentPageIndex() >= pages.length - 2;
       }
-    });
+    }
 
-    // 視窗縮放時自動調整 PageFlip 尺寸
-    window.addEventListener('resize', () => {
-      size = getSize();
-      pageFlip.update({
-        width: size.width,
-        height: size.height
-      });
-    });
+    function showBackCover() {
+      document.getElementById('backcover').classList.remove('hidden');
+      document.getElementById('inner').classList.add('hidden');
+      document.getElementById('cover').classList.add('hidden');
+      document.getElementById('backcover').style.zIndex = 30;
+      document.getElementById('coverMask').classList.remove('active');
+      document.getElementById('backcoverMask').classList.add('active');
+      document.getElementById('navBar').style.visibility = 'hidden';
+    }
+
+    function showInner() {
+      document.getElementById('inner').classList.remove('hidden');
+      document.getElementById('cover').classList.remove('hidden');
+      document.getElementById('backcover').classList.add('hidden');
+      if (!pageFlip) {
+        pageFlip = new St.PageFlip(
+          document.getElementById('inner'),
+          {
+            width: size.width,
+            height: size.height,
+            size: 'fixed',
+            minWidth: 800,
+            maxWidth: 800,
+            minHeight: 1132,
+            maxHeight: 1132,
+            maxShadowOpacity: 0.5,
+            showCover: false,
+            mobileScrollSupport: true,
+            usePortrait: isMobile()
+          }
+        );
+        pageFlip.loadFromImages(pages);
+
+        function updatePageNum() {
+          const current = pageFlip.getCurrentPageIndex() + 1;
+          const total = pages.length;
+          document.getElementById('pageNum').textContent = `第 ${current} / ${total} 頁`;
+        }
+        pageFlip.on('flip', updatePageNum);
+        pageFlip.on('init', updatePageNum);
+
+        document.getElementById('prevPage').onclick = () => pageFlip.flipPrev();
+        document.getElementById('nextPage').onclick = () => {
+          if (isAtLastSpread()) {
+            showBackCover();
+          } else {
+            pageFlip.flipNext();
+          }
+        };
+
+        document.addEventListener('keydown', function(e) {
+          if (document.getElementById('inner').classList.contains('hidden')) return;
+          if (e.key === 'ArrowLeft') pageFlip.flipPrev();
+          else if (e.key === 'ArrowRight') {
+            if (isAtLastSpread()) {
+              showBackCover();
+            } else {
+              pageFlip.flipNext();
+            }
+          }
+        });
+
+        document.getElementById('inner').addEventListener('click', function(e) {
+          if (isAtLastSpread()) {
+            const rect = this.getBoundingClientRect();
+            if (e.clientX > rect.left + rect.width / 2) {
+              showBackCover();
+            }
+          }
+        });
+
+        window.addEventListener('resize', () => {
+          size = getSize();
+          pageFlip.update({
+            width: size.width,
+            height: size.height
+          });
+          pageFlip.setOrientation(isMobile() ? 'portrait' : 'landscape');
+        });
+
+        pageFlip.on('flip', (e) => {
+          if (isAtLastSpread()) {
+            showBackCover();
+          }
+        });
+      }
+    }
+
+    // 封面遮罩與開始閱讀
+    document.getElementById('coverMask').classList.add('active');
+    document.getElementById('backcoverMask').classList.remove('active');
+    document.getElementById('navBar').style.visibility = 'hidden';
+
+    document.getElementById('startRead').onclick = function() {
+      document.getElementById('coverMask').classList.remove('active');
+      document.getElementById('backcoverMask').classList.remove('active');
+      document.getElementById('navBar').style.visibility = 'visible';
+      openBook();
+    };
+
+    // 封底遮罩按鈕
+    document.getElementById('backToCoverMaskBtn').onclick = function() {
+      document.getElementById('cover').classList.remove('hidden');
+      document.getElementById('inner').classList.remove('hidden');
+      document.getElementById('backcover').classList.add('hidden');
+      document.getElementById('cover').style.zIndex = 30;
+      document.getElementById('inner').style.zIndex = 20;
+      document.getElementById('backcover').style.zIndex = 10;
+      if (pageFlip) pageFlip.turnToPage(0);
+      document.getElementById('coverMask').classList.add('active');
+      document.getElementById('backcoverMask').classList.remove('active');
+      document.getElementById('navBar').style.visibility = 'hidden';
+    };
+
+    // 當回到封面時顯示遮罩與隱藏導覽列
+    document.getElementById('backToCover').onclick = function() {
+      document.getElementById('cover').classList.remove('hidden');
+      document.getElementById('inner').classList.remove('hidden');
+      document.getElementById('backcover').classList.add('hidden');
+      document.getElementById('cover').style.zIndex = 30;
+      document.getElementById('inner').style.zIndex = 20;
+      document.getElementById('backcover').style.zIndex = 10;
+      if (pageFlip) pageFlip.turnToPage(0);
+      document.getElementById('coverMask').classList.add('active');
+      document.getElementById('backcoverMask').classList.remove('active');
+      document.getElementById('navBar').style.visibility = 'hidden';
+    };
+
+    // 進入內頁時隱藏遮罩與顯示導覽列
+    function openBook() {
+      document.getElementById('cover').style.zIndex = 10;
+      document.getElementById('inner').style.zIndex = 30;
+      document.getElementById('backcover').style.zIndex = 20;
+      showInner();
+      document.getElementById('coverMask').classList.remove('active');
+      document.getElementById('backcoverMask').classList.remove('active');
+      document.getElementById('navBar').style.visibility = 'visible';
+    }
+    document.getElementById('openBook').onclick = openBook;
+    document.getElementById('coverImg').onclick = openBook;
   </script>
 </body>
 </html>
