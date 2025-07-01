@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>大地興中文DM2</title>
+  <title>大地興中文DM</title>
   <link rel="stylesheet" href="libs/pageflip.min.css">
   <style>
     #flipbook {
@@ -17,18 +17,42 @@
       height: 100%;
       object-fit: contain;
     }
+    #navBar {
+      width: 100vw;
+      text-align: center;
+      margin: 0;
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      z-index: 9999;
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+      padding: 12px 0 8px 0;
+    }
+    #navBar button {
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 8px;
+      font-size: 1em;
+    }
     body {
       margin: 0;
       padding: 0;
       background: #eee;
+      /* 預留底部空間避免內容被按鈕蓋住 */
+      padding-bottom: 60px;
     }
   </style>
 </head>
 <body>
   <div id="flipbook"></div>
-  <div id="navBar" style="width:100vw;text-align:center;margin:16px 0;">
-    <button id="prevPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;margin:0 8px;">上一頁</button>
-    <button id="nextPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;margin:0 8px;">下一頁</button>
+  <div id="navBar">
+    <button id="prevPage">上一頁</button>
+    <button id="nextPage">下一頁</button>
   </div>
   <script src="libs/pageflip.browser.min.js"></script>
   <script>
@@ -70,10 +94,13 @@
 
       pageFlip.loadFromImages(pages);
 
-      // 按鈕事件直接綁定，確保單頁模式也可用
-      
-      document.getElementById('prevPage').onclick = () => pageFlip.flipPrev();
-        document.getElementById('nextPage').onclick = () => pageFlip.flipNext();
+      // 強制綁定按鈕事件
+      document.getElementById('prevPage').onclick = function() {
+        pageFlip.flipPrev();
+      };
+      document.getElementById('nextPage').onclick = function() {
+        pageFlip.flipNext();
+      };
 
       // 鍵盤左右鍵翻頁
       document.addEventListener('keydown', function(e) {
