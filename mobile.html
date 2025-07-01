@@ -114,11 +114,11 @@
     <span id="pageNum">第 1 / 1 頁</span>
     <button id="nextPage">下一頁</button>
   </div>
-  <!-- 封底遮罩 -->
   <div id="backCoverMask">
     <img src="pages/22.jpg" alt="封底">
     <button id="backToCover">回到封面</button>
   </div>
+
   <script src="libs/pageflip.browser.min.js"></script>
   <script>
     const pages = [
@@ -129,9 +129,14 @@
     ];
 
     function getMobileSize() {
+      const ratio = window.devicePixelRatio || 1;
+      const width = Math.min(window.innerWidth - 20, 400);
+      const height = window.innerHeight - 120;
       return {
-        width: Math.min(window.innerWidth - 20, 400),
-        height: window.innerHeight - 120
+        width: width,
+        height: height,
+        renderWidth: width * ratio,
+        renderHeight: height * ratio
       };
     }
 
@@ -144,24 +149,26 @@
       document.getElementById('navBar').style.display = '';
       document.getElementById('backCoverMask').style.display = 'none';
       document.body.style.overflow = '';
+
       if (!pageFlip) {
         size = getMobileSize();
         pageFlip = new St.PageFlip(
           document.getElementById('flipbook'),
           {
-            width: size.width,
-            height: size.height,
+            width: size.renderWidth,
+            height: size.renderHeight,
             size: 'fixed',
             minWidth: 200,
-            maxWidth: 400,
+            maxWidth: 800,
             minHeight: 300,
-            maxHeight: 1200,
+            maxHeight: 1600,
             maxShadowOpacity: 0.5,
             showCover: false,
             mobileScrollSupport: true,
             usePortrait: true
           }
         );
+
         pageFlip.loadFromImages(pages);
 
         if (typeof pageFlip.setOrientation === 'function') {
@@ -173,18 +180,19 @@
           const total = pages.length;
           document.getElementById('pageNum').textContent = `第 ${current} / ${total} 頁`;
         }
+
         pageFlip.on('flip', function() {
           updatePageNum();
-          // 若已到最後一頁，顯示封底
           if (pageFlip.getCurrentPageIndex() === pages.length - 1) {
             setTimeout(function() {
               document.getElementById('flipbook').style.display = 'none';
               document.getElementById('navBar').style.display = 'none';
               document.getElementById('backCoverMask').style.display = 'flex';
               document.body.style.overflow = 'hidden';
-            }, 300); // 延遲避免動畫卡頓
+            }, 300);
           }
         });
+
         pageFlip.on('init', updatePageNum);
 
         document.getElementById('prevPage').onclick = () => pageFlip.flipPrev();
@@ -193,8 +201,8 @@
         window.addEventListener('resize', () => {
           const size = getMobileSize();
           pageFlip.update({
-            width: size.width,
-            height: size.height
+            width: size.renderWidth,
+            height: size.renderHeight
           });
           if (typeof pageFlip.setOrientation === 'function') {
             pageFlip.setOrientation('portrait');
@@ -203,7 +211,6 @@
       }
     };
 
-    // 封底遮罩「回到封面」按鈕
     document.getElementById('backToCover').onclick = function() {
       document.getElementById('backCoverMask').style.display = 'none';
       document.getElementById('coverMask').style.display = 'flex';
