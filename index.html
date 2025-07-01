@@ -152,7 +152,7 @@
       <button id="startRead" style="font-size:1.2em;background:#4CAF50;color:#fff;border:none;padding:16px 40px;border-radius:8px;cursor:pointer;">開始閱讀</button>
     </div>
     <div id="backcoverMask">
-      <button id="backToCoverMaskBtn" style="font-size:1.2em;background:#4CAF50;color:#fff;border:none;padding:16px 40px;border-radius:8px;cursor:pointer;">回到封面</button>
+      <button id="backToCoverMaskBtn" style="font-size:1.2em;background:#2196F3;color:#fff;border:none;padding:16px 40px;border-radius:8px;cursor:pointer;">回到封面</button>
     </div>
     <div id="navBar">
       <button id="prevPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;">上一頁</button>
@@ -162,6 +162,13 @@
   </div>
   <script src="libs/pageflip.browser.min.js"></script>
   <script>
+
+window.onload = function() {
+  alert('目前 window.innerWidth: ' + window.innerWidth);
+  if (window.innerWidth <= 1600 && !location.pathname.endsWith('mobile.html')) {
+    location.href = 'mobile.html';
+  }
+};
     const pages = [
       "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
       "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg", "pages/11.jpg",
@@ -170,6 +177,10 @@
     ];
 
     function getSize() {
+      // 手機時自動縮小寬度
+      if (window.innerWidth <= 600) {
+        return { width: window.innerWidth - 20, height: window.innerHeight - 180 };
+      }
       return { width: 800, height: 1132 };
     }
 
@@ -210,14 +221,14 @@
             width: size.width,
             height: size.height,
             size: 'fixed',
-            minWidth: 800,
+            minWidth: 320,
             maxWidth: 800,
-            minHeight: 1132,
+            minHeight: 400,
             maxHeight: 1132,
             maxShadowOpacity: 0.5,
             showCover: false,
             mobileScrollSupport: true,
-            usePortrait: isMobile()
+            usePortrait: true // 強制自動切換單頁/雙頁
           }
         );
         pageFlip.loadFromImages(pages);
@@ -262,17 +273,30 @@
 
         window.addEventListener('resize', () => {
           size = getSize();
-          pageFlip.update({
-            width: size.width,
-            height: size.height
-          });
-          pageFlip.setOrientation(isMobile() ? 'portrait' : 'landscape');
+          if (pageFlip) {
+            pageFlip.update({
+              width: size.width,
+              height: size.height
+            });
+            const mode = isMobile() ? 'portrait' : 'landscape';
+            console.log('resize 切換模式:', mode, '視窗寬度:', window.innerWidth);
+            pageFlip.setOrientation(mode);
+          }
         });
 
         pageFlip.on('flip', (e) => {
           if (isAtLastSpread()) {
             showBackCover();
           }
+        });
+      } else {
+        // 每次進入內頁時都根據裝置切換 orientation
+        const mode = isMobile() ? 'portrait' : 'landscape';
+        console.log('切換模式:', mode, '視窗寬度:', window.innerWidth);
+        pageFlip.setOrientation(mode);
+        pageFlip.update({
+          width: getSize().width,
+          height: getSize().height
         });
       }
     }
