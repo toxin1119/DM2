@@ -70,15 +70,13 @@
 
       pageFlip.loadFromImages(pages);
 
-      // 等待 PageFlip 初始化完成再綁定按鈕
-      pageFlip.on('init', function() {
-        document.getElementById('prevPage').onclick = function() {
-          pageFlip.flipPrev();
-        };
-        document.getElementById('nextPage').onclick = function() {
-          pageFlip.flipNext();
-        };
-      });
+      // 按鈕事件直接綁定，確保單頁模式也可用
+      document.getElementById('prevPage').onclick = function() {
+        pageFlip.flipPrev();
+      };
+      document.getElementById('nextPage').onclick = function() {
+        pageFlip.flipNext();
+      };
 
       // 鍵盤左右鍵翻頁
       document.addEventListener('keydown', function(e) {
