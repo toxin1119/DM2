@@ -135,24 +135,18 @@
       "pages/12.jpg", "pages/13.jpg", "pages/14.jpg", "pages/15.jpg", "pages/16.jpg",
       "pages/17.jpg", "pages/18.jpg", "pages/19.jpg", "pages/20.jpg", "pages/21.jpg"
     ];
-    function getMobileSize() {
-      const width = Math.min(window.innerWidth - 20, 400);
-      const height = window.innerHeight - 120;
-      return { width, height };
-    }
-/*
-    function getMobileSize() {
-      const ratio = window.devicePixelRatio || 1;
-      const width = Math.min(window.innerWidth - 20, 400);
-      const height = window.innerHeight - 120;
-      return {
-        width: width,
-        height: height,
-        renderWidth: width * ratio,
-        renderHeight: height * ratio
-      };
-    }
-*/
+
+function getMobileSize() {
+  const ratio = window.devicePixelRatio || 1;
+  const width = Math.min(window.innerWidth - 20, 400);
+  const height = window.innerHeight - 120;
+  return {
+    width: width,
+    height: height,
+    renderWidth: width * ratio,
+    renderHeight: height * ratio
+  };
+}
     let size = getMobileSize();
     let pageFlip = null;
 
@@ -168,8 +162,8 @@
         pageFlip = new St.PageFlip(
           document.getElementById('flipbook'),
           {
-            width: size.renderWidth,
-            height: size.renderHeight,
+            width: size.width,
+            height: size.height,
             size: 'fixed',
             minWidth: 200,
             maxWidth: 800,
@@ -178,7 +172,8 @@
             maxShadowOpacity: 0.5,
             showCover: false,
             mobileScrollSupport: true,
-            usePortrait: true
+            usePortrait: true,
+            useMouseEvents: false
           }
         );
 
