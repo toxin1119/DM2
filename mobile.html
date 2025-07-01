@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>大地興中文DM</title>
+  <title>三層圖層電子書（手機版）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="libs/pageflip.min.css">
   <style>
@@ -10,6 +10,7 @@
       margin: 0;
       padding: 0;
       background: #eee;
+      overflow-x: hidden;
     }
     #flipbook {
       width: 100vw;
@@ -129,21 +130,15 @@
     ];
 
     function getMobileSize() {
-      const ratio = window.devicePixelRatio || 1;
       const width = Math.min(window.innerWidth - 20, 400);
       const height = window.innerHeight - 120;
-      return {
-        width: width,
-        height: height,
-        renderWidth: width * ratio,
-        renderHeight: height * ratio
-      };
+      return { width, height };
     }
 
     let size = getMobileSize();
     let pageFlip = null;
 
-    document.getElementById('startRead').onclick = function() {
+    document.getElementById('startRead').onclick = function () {
       document.getElementById('coverMask').style.display = 'none';
       document.getElementById('flipbook').style.display = '';
       document.getElementById('navBar').style.display = '';
@@ -155,8 +150,8 @@
         pageFlip = new St.PageFlip(
           document.getElementById('flipbook'),
           {
-            width: size.renderWidth,
-            height: size.renderHeight,
+            width: size.width,
+            height: size.height,
             size: 'fixed',
             minWidth: 200,
             maxWidth: 800,
@@ -181,10 +176,10 @@
           document.getElementById('pageNum').textContent = `第 ${current} / ${total} 頁`;
         }
 
-        pageFlip.on('flip', function() {
+        pageFlip.on('flip', function () {
           updatePageNum();
           if (pageFlip.getCurrentPageIndex() === pages.length - 1) {
-            setTimeout(function() {
+            setTimeout(function () {
               document.getElementById('flipbook').style.display = 'none';
               document.getElementById('navBar').style.display = 'none';
               document.getElementById('backCoverMask').style.display = 'flex';
@@ -201,17 +196,14 @@
         window.addEventListener('resize', () => {
           const size = getMobileSize();
           pageFlip.update({
-            width: size.renderWidth,
-            height: size.renderHeight
+            width: size.width,
+            height: size.height
           });
-          if (typeof pageFlip.setOrientation === 'function') {
-            pageFlip.setOrientation('portrait');
-          }
         });
       }
     };
 
-    document.getElementById('backToCover').onclick = function() {
+    document.getElementById('backToCover').onclick = function () {
       document.getElementById('backCoverMask').style.display = 'none';
       document.getElementById('coverMask').style.display = 'flex';
       document.getElementById('flipbook').style.display = 'none';
