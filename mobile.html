@@ -6,10 +6,10 @@
   <link rel="stylesheet" href="libs/pageflip.min.css">
   <style>
     #flipbook {
-      width: 90vw;           /* 依螢幕寬度自動縮放 */
-      max-width: 800px;      /* 最大寬度不超過 800px */
-      height: calc(90vw * 1.415); /* 依比例自動縮放 (1132/800 ≈ 1.415) */
-      max-height: 1132px;    /* 最大高度不超過 1132px */
+      width: 90vw;
+      max-width: 800px;
+      height: calc(90vw * 1.415);
+      max-height: 1132px;
       margin: 40px auto;
     }
     #flipbook img {
@@ -32,67 +32,70 @@
   </div>
   <script src="libs/pageflip.browser.min.js"></script>
   <script>
-    const pages = [
-      "pages/01.jpg", "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
-      "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg","pages/11.jpg",
-      "pages/12.jpg", "pages/13.jpg", "pages/14.jpg", "pages/15.jpg", "pages/16.jpg",
-      "pages/17.jpg", "pages/18.jpg","pages/19.jpg", "pages/20.jpg", "pages/21.jpg", "pages/22.jpg"
-    ];
+    document.addEventListener('DOMContentLoaded', function() {
+      const pages = [
+        "pages/01.jpg", "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
+        "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg","pages/11.jpg",
+        "pages/12.jpg", "pages/13.jpg", "pages/14.jpg", "pages/15.jpg", "pages/16.jpg",
+        "pages/17.jpg", "pages/18.jpg","pages/19.jpg", "pages/20.jpg", "pages/21.jpg", "pages/22.jpg"
+      ];
 
-    // 依螢幕寬度動態設定 PageFlip 尺寸
-    function getSize() {
-      const maxW = 800, maxH = 1132, ratio = maxH / maxW;
-      let w = Math.min(window.innerWidth * 0.9, maxW);
-      let h = w * ratio;
-      if (h > maxH) {
-        h = maxH;
-        w = h / ratio;
+      function getSize() {
+        const maxW = 800, maxH = 1132, ratio = maxH / maxW;
+        let w = Math.min(window.innerWidth * 0.9, maxW);
+        let h = w * ratio;
+        if (h > maxH) {
+          h = maxH;
+          w = h / ratio;
+        }
+        return { width: Math.round(w), height: Math.round(h) };
       }
-      return { width: Math.round(w), height: Math.round(h) };
-    }
 
-    let size = getSize();
-    const pageFlip = new St.PageFlip(
-      document.getElementById('flipbook'),
-      {
-        width: size.width,
-        height: size.height,
-        size: 'fixed',
-        minWidth: 315,
-        maxWidth: 1000,
-        minHeight: 420,
-        maxHeight: 1350,
-        maxShadowOpacity: 0.5,
-        showCover: false,
-        mobileScrollSupport: true
-      }
-    );
+      let size = getSize();
+      const pageFlip = new St.PageFlip(
+        document.getElementById('flipbook'),
+        {
+          width: size.width,
+          height: size.height,
+          size: 'fixed',
+          minWidth: 315,
+          maxWidth: 1000,
+          minHeight: 420,
+          maxHeight: 1350,
+          maxShadowOpacity: 0.5,
+          showCover: false,
+          mobileScrollSupport: true
+        }
+      );
 
-    pageFlip.loadFromImages(pages);
+      pageFlip.loadFromImages(pages);
 
-    // 上一頁/下一頁按鈕
-    document.getElementById('prevPage').onclick = function() {
-      pageFlip.flipPrev();
-    };
-    document.getElementById('nextPage').onclick = function() {
-      pageFlip.flipNext();
-    };
+      // 等待 PageFlip 初始化完成再綁定按鈕
+      pageFlip.on('init', function() {
+        document.getElementById('prevPage').onclick = function() {
+          pageFlip.flipPrev();
+        };
+        document.getElementById('nextPage').onclick = function() {
+          pageFlip.flipNext();
+        };
+      });
 
-    // 鍵盤左右鍵翻頁
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'ArrowLeft') {
-        pageFlip.flipPrev();
-      } else if (e.key === 'ArrowRight') {
-        pageFlip.flipNext();
-      }
-    });
+      // 鍵盤左右鍵翻頁
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft') {
+          pageFlip.flipPrev();
+        } else if (e.key === 'ArrowRight') {
+          pageFlip.flipNext();
+        }
+      });
 
-    // 視窗縮放時自動調整 PageFlip 尺寸
-    window.addEventListener('resize', () => {
-      size = getSize();
-      pageFlip.update({
-        width: size.width,
-        height: size.height
+      // 視窗縮放時自動調整 PageFlip 尺寸
+      window.addEventListener('resize', () => {
+        size = getSize();
+        pageFlip.update({
+          width: size.width,
+          height: size.height
+        });
       });
     });
   </script>
