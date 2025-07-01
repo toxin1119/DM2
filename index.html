@@ -15,7 +15,7 @@
       background: #fff;
       overflow: hidden;
     }
-    。cover-section {
+    .cover-section {
       position: absolute;
       left: 0; top: 0; width: 100%; height: 100%;
       display: flex;
@@ -26,13 +26,13 @@
       transition: z-index 0.3s;
       box-shadow: none;
     }
-    。inner-section, .backcover-section {
+    .inner-section, .backcover-section {
       position: absolute;
       left: 0; top: 0; width: 100%; height: 100%;
       background: #fff;
       transition: z-index 0.3s;
     }
-    。cover-left {
+    .cover-left {
       width: 50%;
       height: 100%;
       background: #eee;
@@ -97,7 +97,7 @@
     #coverMask, #backcoverMask {
       position: absolute;
       left: 0; top: 0; width: 100%; height: 100%;
-      
+      background: rgba(0,0,0,0.08); /* 半透明灰色，避免與底色混淆 */
       display: none;
       align-items: center;
       justify-content: center;
@@ -128,7 +128,7 @@
       <div class="cover-left"></div>
       <div class="cover-right">
         <img id="coverImg" src="pages/01.jpg" alt="封面">
-        
+        <button id="openBook" style="margin-top:20px;background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:2;">翻開</button>
       </div>
     </div>
     <!-- 內頁 -->
@@ -143,7 +143,7 @@
         </div>
         <div class="backcover-right"></div>
       </div>
-      
+      <button id="backToCover" style="margin-top:20px;background:#2196F3;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;position:absolute;bottom:40px;left:25%;transform:translateX(-50%);z-index:2;">回到封面</button>
     </div>
   </div>
   <div id="navBarWrap">
@@ -162,8 +162,8 @@
   </div>
   <script src="libs/pageflip.browser.min.js"></script>
   <script>
-
-window.onload = function() {
+    window.onload = function() {
+  alert('目前 window.innerWidth: ' + window.innerWidth);
   
   if (window.innerWidth <= 600 && !location.pathname.endsWith('mobile.html')) {
     location.href = 'mobile.html';
@@ -177,10 +177,6 @@ window.onload = function() {
     ];
 
     function getSize() {
-      // 手機時自動縮小寬度
-      if (window.innerWidth <= 600) {
-        return { width: window.innerWidth - 20, height: window.innerHeight - 180 };
-      }
       return { width: 800, height: 1132 };
     }
 
@@ -221,14 +217,14 @@ window.onload = function() {
             width: size.width,
             height: size.height,
             size: 'fixed',
-            minWidth: 320,
+            minWidth: 800,
             maxWidth: 800,
-            minHeight: 400,
+            minHeight: 1132,
             maxHeight: 1132,
             maxShadowOpacity: 0.5,
             showCover: false,
             mobileScrollSupport: true,
-            usePortrait: true // 強制自動切換單頁/雙頁
+            usePortrait: isMobile()
           }
         );
         pageFlip.loadFromImages(pages);
@@ -278,9 +274,7 @@ window.onload = function() {
               width: size.width,
               height: size.height
             });
-            const mode = isMobile() ? 'portrait' : 'landscape';
-            console.log('resize 切換模式:', mode, '視窗寬度:', window.innerWidth);
-            pageFlip.setOrientation(mode);
+            pageFlip.setOrientation(isMobile() ? 'portrait' : 'landscape');
           }
         });
 
@@ -291,13 +285,7 @@ window.onload = function() {
         });
       } else {
         // 每次進入內頁時都根據裝置切換 orientation
-        const mode = isMobile() ? 'portrait' : 'landscape';
-        console.log('切換模式:', mode, '視窗寬度:', window.innerWidth);
-        pageFlip.setOrientation(mode);
-        pageFlip.update({
-          width: getSize().width,
-          height: getSize().height
-        });
+        pageFlip.setOrientation(isMobile() ? 'portrait' : 'landscape');
       }
     }
 
