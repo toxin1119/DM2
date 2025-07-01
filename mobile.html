@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>大地興中文DM</title>
+  <title>大地興中文DM2</title>
   <link rel="stylesheet" href="libs/pageflip.min.css">
   <style>
     #flipbook {
@@ -71,12 +71,9 @@
       pageFlip.loadFromImages(pages);
 
       // 按鈕事件直接綁定，確保單頁模式也可用
-      document.getElementById('prevPage').onclick = function() {
-        pageFlip.flipPrev();
-      };
-      document.getElementById('nextPage').onclick = function() {
-        pageFlip.flipNext();
-      };
+      
+      document.getElementById('prevPage').onclick = () => pageFlip.flipPrev();
+        document.getElementById('nextPage').onclick = () => pageFlip.flipNext();
 
       // 鍵盤左右鍵翻頁
       document.addEventListener('keydown', function(e) {
