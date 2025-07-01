@@ -24,13 +24,17 @@
 </head>
 <body>
   <div id="flipbook"></div>
+    <div id="navBar" style="width:100vw;text-align:center;margin:16px 0;">
+    <button id="prevPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;margin:0 8px;">上一頁</button>
+    <button id="nextPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;margin:0 8px;">下一頁</button>
+  </div>
   <script src="libs/pageflip.browser.min.js"></script>
   <script>
     const pages = [
       "pages/01.jpg", "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
-      "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg",
+      "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg","pages/11.jpg",
       "pages/12.jpg", "pages/13.jpg", "pages/14.jpg", "pages/15.jpg", "pages/16.jpg",
-      "pages/17.jpg", "pages/18.jpg"
+      "pages/17.jpg", "pages/18.jpg","pages/19.jpg", "pages/20.jpg", "pages/21.jpg", "pages/22.jpg"
     ];
 
     // 依螢幕寬度動態設定 PageFlip 尺寸
@@ -63,6 +67,14 @@
     );
 
     pageFlip.loadFromImages(pages);
+
+    // 上一頁/下一頁按鈕
+    document.getElementById('prevPage').onclick = function() {
+      pageFlip.flipPrev();
+    };
+    document.getElementById('nextPage').onclick = function() {
+      pageFlip.flipNext();
+    };
 
     // 鍵盤左右鍵翻頁
     document.addEventListener('keydown', function(e) {
