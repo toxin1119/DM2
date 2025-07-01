@@ -24,18 +24,13 @@
 </head>
 <body>
   <div id="flipbook"></div>
-  <div style="text-align:center; margin-top:20px;">
-    <button id="prevPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;">上一頁</button>
-    <span id="pageNum">第 1 / 1 頁</span>
-    <button id="nextPage" style="background:#4CAF50;color:#fff;border:none;padding:10px 24px;border-radius:5px;cursor:pointer;">下一頁</button>
-  </div>
   <script src="libs/pageflip.browser.min.js"></script>
   <script>
     const pages = [
       "pages/01.jpg", "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
-      "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg", "pages/11.jpg",
+      "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg",
       "pages/12.jpg", "pages/13.jpg", "pages/14.jpg", "pages/15.jpg", "pages/16.jpg",
-      "pages/17.jpg", "pages/18.jpg", "pages/19.jpg", "pages/20.jpg", "pages/21.jpg", "pages/22.jpg"
+      "pages/17.jpg", "pages/18.jpg"
     ];
 
     // 依螢幕寬度動態設定 PageFlip 尺寸
@@ -68,20 +63,6 @@
     );
 
     pageFlip.loadFromImages(pages);
-    // 更新頁碼
-    function updatePageNum() {
-      const current = pageFlip.getCurrentPageIndex() + 1;
-      const total = pages.length;
-      document.getElementById('pageNum').textContent = `第 ${current} / ${total} 頁`;
-    }
-
-    pageFlip.on('flip', updatePageNum);
-    pageFlip.on('init', updatePageNum);
-
-    // 上下頁按鈕
-    document.getElementById('prevPage').onclick = () => pageFlip.flipPrev();
-    document.getElementById('nextPage').onclick = () => pageFlip.flipNext();
-
 
     // 鍵盤左右鍵翻頁
     document.addEventListener('keydown', function(e) {
