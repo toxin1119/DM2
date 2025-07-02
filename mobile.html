@@ -2,123 +2,96 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>大地興中文DM</title>
-  <link rel="stylesheet" href="libs/pageflip.min.css">
+  <title>單張圖片滑動瀏覽（支援雙指縮放）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, maximum-scale=5">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
   <style>
-    #flipbook {
-      width: 90vw;
-      max-width: 800px;
-      height: calc(90vw * 1.415);
-      max-height: 1132px;
-      margin: 0px auto;
-    }
-    #flipbook img {
-      width: 100%;
+    html, body {
       height: 100%;
-      object-fit: cover;
-    }
-    #navBar {
-      width: 100vw;
-      text-align: center;
-      margin: 0;
-      position: fixed;
-      left: 0;
-      bottom: 0;
-      z-index: 9999;
-      background: rgba(255,255,255,0.95);
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
-      padding: 12px 0 8px 0;
-    }
-    #navBar button {
-      background: #4CAF50;
-      color: #fff;
-      border: none;
-      padding: 24px 48px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 0 16px;
-      font-size: 1.5em;
-    }
-    body {
       margin: 0;
       padding: 0;
       background: #eee;
-      /* 預留底部空間避免內容被按鈕蓋住 */
-      padding-bottom: 60px;
+    }
+    .swiper {
+      width: 100vw;
+      height: 100vh;
+      background: #eee;
+    }
+    .swiper-slide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+    .swiper-zoom-container img {
+      width: 100%;
+      height: auto;
+      max-height: 100vh;
+      object-fit: contain;
+      background: #fff;
+      user-select: none;
+      -webkit-user-drag: none;
     }
   </style>
 </head>
 <body>
-  <div id="flipbook"></div>
-  <div id="navBar">
-    <button id="prevPage">上一頁</button>
-    <button id="nextPage">下一頁</button>
+  <!-- Swiper -->
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <!-- 圖片會自動插入這裡 -->
+    </div>
+    <!-- 分頁點 -->
+    <div class="swiper-pagination"></div>
+    <!-- 左右箭頭 -->
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
   </div>
-  <script src="libs/pageflip.browser.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const pages = [
-        "pages/01.jpg", "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
-        "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg","pages/11.jpg",
-        "pages/12.jpg", "pages/13.jpg", "pages/14.jpg", "pages/15.jpg", "pages/16.jpg",
-        "pages/17.jpg", "pages/18.jpg","pages/19.jpg", "pages/20.jpg", "pages/21.jpg", "pages/22.jpg"
-      ];
+    // 你的圖片清單
+    const pages = [
+      "pages/01.jpg", "pages/02.jpg", "pages/03.jpg", "pages/04.jpg", "pages/05.jpg",
+      "pages/06.jpg", "pages/07.jpg", "pages/08.jpg", "pages/09.jpg", "pages/10.jpg","pages/11.jpg",
+      "pages/12.jpg", "pages/13.jpg", "pages/14.jpg", "pages/15.jpg", "pages/16.jpg",
+      "pages/17.jpg", "pages/18.jpg","pages/19.jpg", "pages/20.jpg", "pages/21.jpg", "pages/22.jpg"
+    ];
 
-      function getSize() {
-        const maxW = 800, maxH = 1132, ratio = maxH / maxW;
-        let w = Math.min(window.innerWidth * 0.9, maxW);
-        let h = w * ratio;
-        if (h > maxH) {
-          h = maxH;
-          w = h / ratio;
+    // 動態產生 Swiper Slide
+    const wrapper = document.querySelector('.swiper-wrapper');
+    pages.forEach(src => {
+      const slide = document.createElement('div');
+      slide.className = 'swiper-slide';
+      slide.innerHTML = `
+        <div class="swiper-zoom-container">
+          <img src="${src}" draggable="false" />
+        </div>
+      `;
+      wrapper.appendChild(slide);
+    });
+
+    // 初始化 Swiper
+    const swiper = new Swiper('.swiper', {
+      zoom: true, // 啟用雙指縮放
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      spaceBetween: 10,
+      centeredSlides: true,
+      slidesPerView: 1,
+      initialSlide: 0,
+      loop: false,
+      // 可選：滑動時自動還原縮放
+      on: {
+        slideChange: function() {
+          if (this.zoom && this.zoom.out) this.zoom.out();
         }
-        return { width: Math.round(w), height: Math.round(h) };
       }
-
-      let size = getSize();
-      const pageFlip = new St.PageFlip(
-        document.getElementById('flipbook'),
-        {
-          width: size.width,
-          height: size.height,
-          size: 'fixed',
-          minWidth: 315,
-          maxWidth: 1000,
-          minHeight: 420,
-          maxHeight: 1350,
-          maxShadowOpacity: 0.5,
-          showCover: false,
-          mobileScrollSupport: true
-        }
-      );
-
-      pageFlip.loadFromImages(pages);
-
-      // 強制綁定按鈕事件
-      document.getElementById('prevPage').onclick = function() {
-        pageFlip.flipPrev();
-      };
-      document.getElementById('nextPage').onclick = function() {
-        pageFlip.flipNext();
-      };
-
-      // 鍵盤左右鍵翻頁
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowLeft') {
-          pageFlip.flipPrev();
-        } else if (e.key === 'ArrowRight') {
-          pageFlip.flipNext();
-        }
-      });
-
-      // 視窗縮放時自動調整 PageFlip 尺寸
-      window.addEventListener('resize', () => {
-        size = getSize();
-        pageFlip.update({
-          width: size.width,
-          height: size.height
-        });
-      });
     });
   </script>
 </body>
